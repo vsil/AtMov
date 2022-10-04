@@ -15,21 +15,32 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     private TextView viewTemperature;
     private TextView viewPressure;
+    private TextView viewHumidity;
+    private TextView viewLuminosity;
 
     private TextView viewMinTemp;
     private TextView viewMaxTemp;
 
+
     private Sensor temperatureSensor;
     private Sensor pressureSensor;
+    private Sensor humiditySensor;
+    private Sensor luminositySensor;
 
     private boolean isTempSensorAvailable;
     private boolean isPressureSensorAvailable;
+    private boolean isHumidySensorAvailable;
+    private boolean isLuminositySensorAvailable;
 
     private SensorManager sensorManager;
 
     float[] minMaxTemp;   // [minTemp , maxTemp]
+    float[] minMaxHumid;
+    float[] getMinMaxTemp;
 
     boolean TempFirstEvent;
+    boolean HumidFirstEvent;
+    boolean LuminFirstEvent;
 
 
 
@@ -41,6 +52,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         viewTemperature = findViewById(R.id.view_temperature);
         viewPressure = findViewById(R.id.view_pressure);
+        viewHumidity = findViewById(R.id.view_humidity);
+        viewLuminosity = findViewById(R.id.view_luminosity);
 
         viewMinTemp = findViewById(R.id.viewMinTemp);
         viewMaxTemp = findViewById(R.id.viewMaxTemp);
@@ -71,7 +84,23 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             Log.i("ISPress?", "press doesnt exist");
         }
 
+        if (sensorManager.getDefaultSensor(Sensor.TYPE_RELATIVE_HUMIDITY) != null) {
+            humiditySensor = sensorManager.getDefaultSensor(Sensor.TYPE_RELATIVE_HUMIDITY);
+            isHumidySensorAvailable = true;
 
+        } else {
+            viewHumidity.setText("404: Humidity Sensor not available");
+            isHumidySensorAvailable = false;
+        }
+
+        if (sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT) != null) {
+            luminositySensor = sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
+            isLuminositySensorAvailable = true;
+
+        } else {
+            viewLuminosity.setText("404: Luminosity Sensor not available");
+            isLuminositySensorAvailable = false;
+        }
 
     }
 
@@ -96,16 +125,16 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
             case Sensor.TYPE_PRESSURE:
                 viewPressure.setText(event.values[0] + " hPa");
-                Log.i("PRESSEVENT?", "ON");
+                break;
+
+            case Sensor.TYPE_RELATIVE_HUMIDITY:
+                viewHumidity.setText(event.values[0] + "%");
+                break;
+
+            case Sensor.TYPE_LIGHT:
+                viewLuminosity.setText(event.values[0] + " lx");
                 break;
         }
-/*
-        if(event.sensor.getType() == Sensor.TYPE_AMBIENT_TEMPERATURE){    //later implement switch
-            viewTemperature.setText(event.values[0] + " ºC");
-            Log.i("TEMPEVENT?", "ON");
-        }
-
- */
     }
 
     @Override
@@ -121,17 +150,18 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         if (isPressureSensorAvailable) {
             sensorManager.registerListener(this, pressureSensor, sensorManager.SENSOR_DELAY_NORMAL);
         }
+        if (isLuminositySensorAvailable) {
+            sensorManager.registerListener(this, luminositySensor, sensorManager.SENSOR_DELAY_NORMAL);
+        }
+        if (isHumidySensorAvailable) {
+            sensorManager.registerListener(this, humiditySensor, sensorManager.SENSOR_DELAY_NORMAL);
+        }
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        if (isTempSensorAvailable) {
-            sensorManager.unregisterListener(this);    // is this correct?
-        }
-        if (isPressureSensorAvailable) {
-            sensorManager.unregisterListener(this);   // is it one unregister for both?
-        }
+        sensorManager.unregisterListener(this);   // is it one unregister for all sensors?
     }
 
     // esta funcao consegue aceder ao minMax? se sim, nao tenho de passar como argumento
