@@ -20,22 +20,18 @@ import java.io.Console;
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
 
     private TextView viewTemperature;
-    private TextView viewPressure;
     private TextView viewHumidity;
     private TextView viewLuminosity;
 
     private Button setAlarmButton;
-    private TextView viewMinTemp;
-    private TextView viewMaxTemp;
+    private TextView viewMinMaxTemp;
 
 
     private Sensor temperatureSensor;
-    private Sensor pressureSensor;
     private Sensor humiditySensor;
     private Sensor luminositySensor;
 
     private boolean isTempSensorAvailable;
-    private boolean isPressureSensorAvailable;
     private boolean isHumidySensorAvailable;
     private boolean isLuminositySensorAvailable;
 
@@ -62,12 +58,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         setContentView(R.layout.activity_main);
 
         viewTemperature = findViewById(R.id.view_temperature);
-        viewPressure = findViewById(R.id.view_pressure);
         viewHumidity = findViewById(R.id.view_humidity);
         viewLuminosity = findViewById(R.id.view_luminosity);
 
-        viewMinTemp = findViewById(R.id.viewMinTemp);
-        viewMaxTemp = findViewById(R.id.viewMaxTemp);
+        viewMinMaxTemp = findViewById(R.id.viewMinMaxTemp);
 
         setAlarmButton = findViewById(R.id.set_alarm);
         setAlarmButton.setOnClickListener(new View.OnClickListener() {
@@ -89,17 +83,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             viewTemperature.setText("404: Temp Sensor not available");
             isTempSensorAvailable = false;
             //Log.i("ISTEMP?", "temp doesnt exist");
-        }
-
-        if (sensorManager.getDefaultSensor(Sensor.TYPE_PRESSURE) != null) {
-            pressureSensor = sensorManager.getDefaultSensor(Sensor.TYPE_PRESSURE);
-            isPressureSensorAvailable = true;
-            Log.i("ISPress?", "pressure exists");
-
-        } else {
-            viewTemperature.setText("404: Temp Sensor not available");
-            isPressureSensorAvailable = false;
-            Log.i("ISPress?", "press doesnt exist");
         }
 
         if (sensorManager.getDefaultSensor(Sensor.TYPE_RELATIVE_HUMIDITY) != null) {
@@ -136,21 +119,19 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 viewTemperature.setText(event.values[0] + " ºC");
 
                 minMaxTemp = checkMinMax(event.values[0], minMaxTemp, TempFirstEvent);
-
-                viewMinTemp.setText("min: " + String.valueOf(minMaxTemp[0])+ " ºC");
-                viewMaxTemp.setText("Max: " + String.valueOf(minMaxTemp[1])+ " ºC");  // perhaps put this inside checkMinMax()
+                Log.d("min: " , "min: " + String.valueOf(minMaxTemp[0]));
+                Log.d("max: ", "max: " + String.valueOf(minMaxTemp[1]));
+                viewMinMaxTemp.setText("min: " + String.valueOf(minMaxTemp[0])+ " ºC | Max: " + String.valueOf(minMaxTemp[1])+ " ºC");
 
                 TempFirstEvent = false;          // can use a if True, para nao executar em todos os eventos
-
+/*
                 // function check_threshold()
                 if(event.values[0]<TempThreshold[0] || event.values[0]>TempThreshold[1]){
                     Log.i(" Temp Threshold", "ON2");
                     // send notification
                 }
-                break;
 
-            case Sensor.TYPE_PRESSURE:
-                viewPressure.setText(event.values[0] + " hPa");
+ */
                 break;
 
             case Sensor.TYPE_RELATIVE_HUMIDITY:
@@ -173,9 +154,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         if (isTempSensorAvailable) {
             sensorManager.registerListener(this, temperatureSensor, sensorManager.SENSOR_DELAY_NORMAL);
         }
-        if (isPressureSensorAvailable) {
-            sensorManager.registerListener(this, pressureSensor, sensorManager.SENSOR_DELAY_NORMAL);
-        }
+
         if (isLuminositySensorAvailable) {
             sensorManager.registerListener(this, luminositySensor, sensorManager.SENSOR_DELAY_NORMAL);
         }
