@@ -3,12 +3,15 @@ package com.example.project1;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
+import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
@@ -18,6 +21,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private TextView viewHumidity;
     private TextView viewLuminosity;
 
+    private Button setAlarmButton;
     private TextView viewMinTemp;
     private TextView viewMaxTemp;
 
@@ -42,6 +46,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     boolean HumidFirstEvent;
     boolean LuminFirstEvent;
 
+    float[] TempThreshold;      // defined by user, who sets alarms
+    float[] LuminosityThreshold; // [min, max]
+    float[] HumidityThreshold;
+
 
 
 
@@ -58,6 +66,13 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         viewMinTemp = findViewById(R.id.viewMinTemp);
         viewMaxTemp = findViewById(R.id.viewMaxTemp);
 
+        setAlarmButton = findViewById(R.id.set_alarm);
+        setAlarmButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                openAlarmActivity();
+            }
+        });
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
 
         // put all this in a function ; get_sensors() or something
@@ -104,6 +119,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     }
 
+    private void openAlarmActivity() {
+        Intent intent = new Intent(this, Alarms.class);
+        startActivity(intent);
+    }
+
     // Question: Only shows values after they are changed by hand;
     @Override
     public void onSensorChanged(SensorEvent event) {
@@ -111,16 +131,19 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
             case Sensor.TYPE_AMBIENT_TEMPERATURE:
                 viewTemperature.setText(event.values[0] + " ºC");
-                Log.i(" Broke?", "ON1");
 
                 minMaxTemp = checkMinMax(event.values[0], minMaxTemp, TempFirstEvent);
-                Log.i(" Broke?", "ON2");
 
                 viewMinTemp.setText("min: " + String.valueOf(minMaxTemp[0])+ " ºC");
                 viewMaxTemp.setText("Max: " + String.valueOf(minMaxTemp[1])+ " ºC");  // perhaps put this inside checkMinMax()
 
                 TempFirstEvent = false;          // can use a if True, para nao executar em todos os eventos
 
+                // function check_threshold()
+                if(event.values[0]<TempThreshold[0] || event.values[0]>TempThreshold[1]){
+                    Log.i(" Temp Threshold", "ON2");
+                    // send notification
+                }
                 break;
 
             case Sensor.TYPE_PRESSURE:
