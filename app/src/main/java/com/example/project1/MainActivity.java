@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -13,6 +14,8 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+
+import java.io.Console;
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
 
@@ -179,6 +182,14 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         if (isHumidySensorAvailable) {
             sensorManager.registerListener(this, humiditySensor, sensorManager.SENSOR_DELAY_NORMAL);
         }
+
+
+        SharedPreferences sh = getSharedPreferences("SharedPreferences", Context.MODE_PRIVATE);
+        Float minTempThresh = sh.getFloat("min_temp_thresh", 0);
+        Log.i(" SHARED PREFS READING: ", String.valueOf(minTempThresh));
+        viewTemperature.setText(minTempThresh + " ºC");
+
+
     }
 
     @Override
