@@ -17,6 +17,8 @@ public class Alarms extends AppCompatActivity {
 
     private Button minTempButton;
     private TextView minTempInput;
+    private Button maxTempButton;
+    private TextView maxTempInput;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,13 +28,25 @@ public class Alarms extends AppCompatActivity {
         SharedPreferences pref = getApplicationContext().getSharedPreferences("SharedPreferences", 0); // 0 - for private mode
         SharedPreferences.Editor editor = pref.edit();
 
-        minTempButton = findViewById(R.id.TempMinButton);
+
         minTempInput = findViewById(R.id.TempMinInput);
+        minTempButton = findViewById(R.id.TempMinButton);
         minTempButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
                 editor.putFloat("min_temp_thresh", Float.parseFloat(minTempInput.getText().toString())); // Storing float
+                editor.commit();
+
+            }
+        });
+        maxTempInput = findViewById(R.id.TempMaxInput);
+        maxTempButton = findViewById(R.id.TempMaxButton);
+        maxTempButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                editor.putFloat("max_temp_thresh", Float.parseFloat(maxTempInput.getText().toString())); // Storing float
                 editor.commit();
 
             }

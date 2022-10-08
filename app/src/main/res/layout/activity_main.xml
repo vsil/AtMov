@@ -43,23 +43,22 @@
         />
 
 
-
     <Switch
         android:id="@+id/TempAlarmSwitch"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_toLeftOf="@id/view_temperature"
-        android:layout_alignParentLeft="true"
         android:layout_below="@id/TemperatureTitle"
-        android:text="Alarm"
+        android:layout_alignParentLeft="true"
+        android:layout_marginLeft="50sp"
         android:layout_marginRight="60sp"
-        android:layout_marginLeft="25sp"
+        android:layout_toLeftOf="@id/view_temperature"
+        android:text="Alarm"
 
 
-        />
+        android:textSize="10sp" />
 
     <TextView
-        android:id="@+id/viewTempAlarms"
+        android:id="@+id/viewTempThresh"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/TempAlarmSwitch"
@@ -114,7 +113,7 @@
         android:id="@+id/set_alarm"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Set Alarms"
+        android:text="Set Alarms Values"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
  />

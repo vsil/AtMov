@@ -24,7 +24,7 @@
       android:layout_alignParentRight="true"
       android:layout_toEndOf="@+id/TempMinInput"
       android:layout_toRightOf="@+id/TempMinInput"
-      android:text="Set Alarm"
+      android:text="Set Value"
       android:textSize="12sp" />
 
   <EditText
@@ -46,7 +46,7 @@
       android:layout_alignParentRight="true"
       android:layout_toEndOf="@+id/TempMaxInput"
       android:layout_toRightOf="@+id/TempMaxInput"
-      android:text="Set Alarm"
+      android:text="Set Value"
       android:textSize="12sp" />
 
   <TextView
@@ -85,7 +85,7 @@
       android:layout_alignParentRight="true"
       android:layout_toEndOf="@+id/HumidityMinInput"
       android:layout_toRightOf="@+id/HumidityMinInput"
-      android:text="Set Alarm"
+      android:text="Set Value"
       android:textSize="12sp" />
   <EditText
       android:id="@+id/HumidityMaxInput"
@@ -105,7 +105,7 @@
       android:layout_alignParentRight="true"
       android:layout_toEndOf="@+id/HumidityMaxInput"
       android:layout_toRightOf="@+id/HumidityMaxInput"
-      android:text="Set Alarm"
+      android:text="Set Value"
       android:textSize="12sp" />
 
   <TextView
@@ -135,7 +135,7 @@
       android:layout_alignParentRight="true"
       android:layout_toEndOf="@+id/LuminosityMinInput"
       android:layout_toRightOf="@+id/LuminosityMinInput"
-      android:text="Set Alarm"
+      android:text="Set Value"
       android:textSize="12sp" />
 
   <EditText
@@ -155,6 +155,6 @@
       android:layout_alignParentRight="true"
       android:layout_toEndOf="@+id/LuminosityMaxInput"
       android:layout_toRightOf="@+id/LuminosityMaxInput"
-      android:text="Set Alarm"
+      android:text="Set Value"
       android:textSize="12sp" />
 </RelativeLayout>
