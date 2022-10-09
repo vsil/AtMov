@@ -26,9 +26,9 @@
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_centerInParent="true"
+        android:layout_marginTop="20sp"
         android:text="Temperature"
-        android:textSize="20sp"
-        android:layout_marginTop="20sp"/>
+        android:textSize="20sp" />
 
 
     <TextView
@@ -120,14 +120,13 @@
  />
 
     <Button
-        android:id="@+id/show_repository_button"
+        android:id="@+id/set_repository"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Show Repository"
         android:layout_above="@id/set_alarm"
         android:layout_centerHorizontal="true"
         />
-
 
 
 </RelativeLayout>
