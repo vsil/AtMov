@@ -1,7 +1,12 @@
 package com.example.project1;
 
-import androidx.appcompat.app.AppCompatActivity;
+import static com.example.project1.Notifications.CHANNEL_1_ID;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
+
+import android.app.Notification;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -13,6 +18,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -37,6 +43,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private TextView viewMinMaxTemp;
     private Button setRepositoryButton;
 
+    private TextView viewTempThresh;
+    private Switch TempAlarmSwitch;
 
     private Sensor temperatureSensor;
     private Sensor humiditySensor;
@@ -61,20 +69,30 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     float[] HumidityThreshold;
 
     float[] TempStored = new float[10]; //declarar array de floats com tamanho fixo de 10
+    SharedPreferences sh;
+    private NotificationManagerCompat notificationManager;
 
     int TempIndex;
+    Float minTempThresh;
+    Float maxTempThresh;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        notificationManager = NotificationManagerCompat.from(this);
+
         setContentView(R.layout.activity_main);
+
 
         viewTemperature = findViewById(R.id.view_temperature);
         viewHumidity = findViewById(R.id.view_humidity);
         viewLuminosity = findViewById(R.id.view_luminosity);
 
         viewMinMaxTemp = findViewById(R.id.viewMinMaxTemp);
+        viewTempThresh = findViewById(R.id.viewTempThresh);
+        TempAlarmSwitch = findViewById(R.id.TempAlarmSwitch);
 
         setAlarmButton = findViewById(R.id.set_alarm);
         setAlarmButton.setOnClickListener(new View.OnClickListener() {
@@ -85,12 +103,13 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         });//da para fazer isto mais facilmente no xml file
 
         setRepositoryButton = findViewById(R.id.set_repository);
-        setAlarmButton.setOnClickListener(new View.OnClickListener() {
+        setRepositoryButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 openRepository();
             }
         });//da para fazer isto mais facilmente no xml file
+
 
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
 
@@ -126,15 +145,46 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             isLuminositySensorAvailable = false;
         }
 
+        //create the necessary cache files and delete previous cached files
+        String filename = "TempStored";
+        //getApplicationContext().deleteFile(filename);
+        //File cacheFile = new File(getApplicationContext().getCacheDir(), filename);
+
+
+
     }
 
     private void openAlarmActivity() {
+        Log.i("opening alarms","working?");
         Intent intent = new Intent(this, Alarms.class);
         startActivity(intent);
     }
 
     private void openRepository() {
+        //builds the data we want to store
+        String txt = "";
+        for (int c = 0; c < 10; c = c + 1) {
+            txt = txt + String.valueOf(TempStored[c]) + "\n";
+            Log.d("value:",String.valueOf(TempStored[c]));
+        }
 
+        //this needs to either go on the pause section or on the other activity
+        //create file to store values
+        String filename = "TempStored";
+        File file = new File(getApplicationContext().getFilesDir(), filename);//
+
+        //store values
+        try (FileOutputStream fos = getApplicationContext().openFileOutput(filename, Context.MODE_PRIVATE)) {
+            fos.write(txt.getBytes());
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
+        Intent intent = new Intent(this, repositoy.class);
+        startActivity(intent);
     }
 
     // Question: Only shows values after they are changed by hand;
@@ -152,56 +202,43 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
                 TempFirstEvent = false;          // can use a if True, para nao executar em todos os eventos
 
-                //save up to 10 values
-                TempStored[TempIndex]=event.values[0];
+                if(TempAlarmSwitch.isChecked()) {
 
-                TempIndex = TempIndex +1; //next measurement must be in the next position
-                if(TempIndex == 9)
-                    TempIndex=0; //round robin
-
-                String txt = "";
-                for(int c=0;c<9;c=c+1){
-                    txt = txt + String.valueOf(TempStored[c]) + "/" ;
-                }
-
-                //this needs to either go on the pause section or on the other activity
-                //create file to store values
-                String filename = "TempStored";
-                File file = new File(getApplicationContext().getFilesDir(), filename);
-
-                //store values
-                try (FileOutputStream fos = getApplicationContext().openFileOutput(filename, Context.MODE_PRIVATE)) {
-                    fos.write(txt.getBytes());
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-                /*
-                //read stored values
-                FileInputStream fis = null; //prob just file would work here
-                try {
-                    fis = getApplicationContext().openFileInput(filename);
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                }
-
-                InputStreamReader inputStreamReader = new InputStreamReader(fis, StandardCharsets.UTF_8);
-                StringBuilder stringBuilder = new StringBuilder();
-                try (BufferedReader reader = new BufferedReader(inputStreamReader)) {
-                    String line = reader.readLine();
-                    while (line != null) {
-                        stringBuilder.append(line).append('\n');
-                        line = reader.readLine();
+                    // function check_threshold()
+                    if (event.values[0] < minTempThresh) {
+                        Log.i(" Temp Threshold", "ON2");
+                        // send notification
+                        Notification notification = new NotificationCompat.Builder(this, CHANNEL_1_ID)
+                                .setSmallIcon(R.drawable.ic_message)
+                                .setContentTitle("Temperature Alert")
+                                .setContentText("Minimum temperature Alert")
+                                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                                .setCategory(NotificationCompat.CATEGORY_ALARM)
+                                .setAutoCancel(true)
+                                .build();
+                        notificationManager.notify(1, notification);
                     }
-                    String contents = stringBuilder.toString();
-                    Toast toast = Toast.makeText(getApplicationContext(), contents, Toast.LENGTH_SHORT);
-                    toast.show();
-                } catch (IOException e) {
-                    e.printStackTrace();
+                    if (event.values[0] > maxTempThresh) {
+                        Log.i(" Temp Threshold MAX", "ON2");
+                        // send notification
+                        Notification notification = new NotificationCompat.Builder(this, CHANNEL_1_ID)
+                                .setSmallIcon(R.drawable.ic_message)
+                                .setContentTitle("Temperature Alert")
+                                .setContentText("Maximum temperature Alert")
+                                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                                .setCategory(NotificationCompat.CATEGORY_ALARM)
+                                .setAutoCancel(true)
+                                .build();
+                        notificationManager.notify(1, notification);
+                    }
+
                 }
-                */
+                //store one value in the position that is oldest
+                TempStored[TempIndex] = event.values[0];
+
+                TempIndex = TempIndex + 1; //next measurement must be in the next position
+                if (TempIndex == 10) //return to the begining
+                    TempIndex = 0; //round robin
 
                 break;
 
@@ -234,11 +271,13 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
 
 
-        SharedPreferences sh = getSharedPreferences("SharedPreferences", Context.MODE_PRIVATE);
-        Float minTempThresh = sh.getFloat("min_temp_thresh", 0);
-        Log.i(" SHARED PREFS READING: ", String.valueOf(minTempThresh));
-        viewTemperature.setText(minTempThresh + " ºC");
+        sh = getSharedPreferences("SharedPreferences", Context.MODE_PRIVATE);
+        minTempThresh = sh.getFloat("min_temp_thresh", 0);
+        maxTempThresh = sh.getFloat("max_temp_thresh", 0);
 
+
+        Log.i(" SHARED PREFS READING: ", String.valueOf(minTempThresh));
+        viewTempThresh.setText("min: " + minTempThresh + " ºC | Max: " + maxTempThresh + " ºC");
 
     }
 
@@ -267,5 +306,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
         return newMinMax;
     }
+
 }
 

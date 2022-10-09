@@ -29,10 +29,24 @@ import java.time.temporal.Temporal;
 
 public class repositoy extends AppCompatActivity {
 
+    private TextView[] V = new TextView[10];
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_repositoy);
+
+        //get textView by id into V[]
+        V[0] = findViewById(R.id.textView);
+        V[1] = findViewById(R.id.textView2);
+        V[2] = findViewById(R.id.textView3);
+        V[3] = findViewById(R.id.textView4);
+        V[4] = findViewById(R.id.textView5);
+        V[5] = findViewById(R.id.textView6);
+        V[6] = findViewById(R.id.textView7);
+        V[7] = findViewById(R.id.textView8);
+        V[8] = findViewById(R.id.textView9);
+        V[9] = findViewById(R.id.textView10);
 
         String filename = "TempStored";
 
@@ -46,16 +60,17 @@ public class repositoy extends AppCompatActivity {
         }
 
         InputStreamReader inputStreamReader = new InputStreamReader(fis, StandardCharsets.UTF_8);
-        StringBuilder stringBuilder = new StringBuilder();
+
         try (BufferedReader reader = new BufferedReader(inputStreamReader)) {
             String line = reader.readLine();
+            int c = 0;
             while (line != null) {
-                stringBuilder.append(line).append('\n');
+                if(c>10)
+                    break;
+                V[c].setText(line);
+                c = c + 1 ;
                 line = reader.readLine();
             }
-            String contents = stringBuilder.toString();
-            Toast toast = Toast.makeText(getApplicationContext(), contents, Toast.LENGTH_SHORT);
-            toast.show();
         } catch (IOException e) {
             e.printStackTrace();
         }
