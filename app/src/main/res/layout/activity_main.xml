@@ -52,7 +52,6 @@
         android:layout_marginLeft="50sp"
         android:layout_marginRight="60sp"
         android:layout_toLeftOf="@id/view_temperature"
-        android:text="Alarm"
 
 
         android:textSize="10sp" />
