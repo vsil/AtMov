@@ -7,6 +7,7 @@ import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
 import android.app.Notification;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -77,6 +78,16 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         viewMinMaxTemp = findViewById(R.id.viewMinMaxTemp);
         viewTempThresh = findViewById(R.id.viewTempThresh);
         TempAlarmSwitch = findViewById(R.id.TempAlarmSwitch);
+        TempAlarmSwitch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // clicking on switch opens alarm activities if neither of the alarm values are set
+                if(minTempThresh==null||maxTempThresh==null){
+                    Intent intent = new Intent(view.getContext(), Alarms.class);
+                    startActivity(intent);
+                }
+            }
+        });
 
         setAlarmButton = findViewById(R.id.set_alarm);
         setAlarmButton.setOnClickListener(new View.OnClickListener() {
@@ -145,6 +156,15 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                     // function check_threshold()
                     if (event.values[0] < minTempThresh) {
                         Log.i(" Temp Threshold", "ON2");
+
+                        // create intent to open main activity
+                        Intent myIntent = new Intent(this, MainActivity.class);
+                        PendingIntent pendingIntent = PendingIntent.getActivity(
+                                this,
+                                0,
+                                myIntent,
+                                PendingIntent.FLAG_IMMUTABLE);
+
                         // send notification
                         Notification notification = new NotificationCompat.Builder(this, CHANNEL_1_ID)
                                 .setSmallIcon(R.drawable.ic_message)
@@ -152,12 +172,22 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                                 .setContentText("Minimum temperature Alert")
                                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                                 .setCategory(NotificationCompat.CATEGORY_ALARM)
+                                .setContentIntent(pendingIntent)
                                 .setAutoCancel(true)
                                 .build();
                         notificationManager.notify(1, notification);
                     }
                     if (event.values[0] > maxTempThresh) {
                         Log.i(" Temp Threshold MAX", "ON2");
+
+                        //create intent to open main activity
+                        Intent myIntent = new Intent(this, MainActivity.class);
+                        PendingIntent pendingIntent = PendingIntent.getActivity(
+                                this,
+                                0,
+                                myIntent,
+                                PendingIntent.FLAG_IMMUTABLE);
+
                         // send notification
                         Notification notification = new NotificationCompat.Builder(this, CHANNEL_1_ID)
                                 .setSmallIcon(R.drawable.ic_message)
