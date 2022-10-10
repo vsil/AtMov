@@ -29,9 +29,18 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private TextView viewLuminosity;
 
     private Button setAlarmButton;
+
     private TextView viewMinMaxTemp;
     private TextView viewTempThresh;
     private Switch TempAlarmSwitch;
+
+    private TextView viewMinMaxHumid;
+    private TextView viewHumidThresh;
+    private Switch HumidAlarmSwitch;
+
+    private TextView viewMinMaxLuminosity;
+    private TextView viewLuminosityThresh;
+    private Switch LuminosityAlarmSwitch;
 
     private Sensor temperatureSensor;
     private Sensor humiditySensor;
@@ -89,6 +98,24 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             }
         });
 
+        viewMinMaxHumid = findViewById(R.id.viewMinMaxHumid);
+        viewHumidThresh = findViewById(R.id.viewHumidThreshold);
+        HumidAlarmSwitch = findViewById(R.id.HumidityAlarmSwitch);
+//set onclick!!       TempAlarmSwitch.setOnClickListener(new View.OnClickListener() {};
+
+        viewMinMaxLuminosity = findViewById(R.id.viewMinMaxLuminosity);
+        viewLuminosityThresh = findViewById(R.id.viewLuminosityThreshold);
+        LuminosityAlarmSwitch = findViewById(R.id.LuminosityAlarmSwitch);
+/*
+        LuminosityAlarmSwitch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
+*/
+
+
         setAlarmButton = findViewById(R.id.set_alarm);
         setAlarmButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -96,6 +123,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 openAlarmActivity();
             }
         });
+
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
 
         // put all this in a function ; get_sensors() or something

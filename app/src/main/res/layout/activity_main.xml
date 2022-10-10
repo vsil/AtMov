@@ -52,8 +52,6 @@
         android:layout_marginLeft="50sp"
         android:layout_marginRight="60sp"
         android:layout_toLeftOf="@id/view_temperature"
-
-
         android:textSize="10sp" />
 
     <TextView
@@ -78,6 +76,27 @@
         android:text="Relative Humidity"
         android:textSize="20sp" />
 
+    <Switch
+        android:id="@+id/HumidityAlarmSwitch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/HumidityTitle"
+        android:layout_alignParentLeft="true"
+        android:layout_marginLeft="50sp"
+        android:layout_marginRight="60sp"
+        android:layout_toLeftOf="@id/view_humidity"
+        android:textSize="10sp" />
+
+    <TextView
+        android:id="@+id/viewHumidThreshold"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/HumidityAlarmSwitch"
+        android:layout_alignParentLeft="true"
+        android:layout_marginLeft="10sp"
+        android:text="min: ... | max: ...."
+        android:textSize="10sp" />
+
     <TextView
         android:id="@+id/view_humidity"
         android:layout_width="wrap_content"
@@ -90,6 +109,17 @@
         />
 
     <TextView
+        android:id="@+id/viewMinMaxHumid"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="min: ... | max: ..."
+        android:layout_below="@id/HumidityTitle"
+        android:layout_toRightOf="@id/view_humidity"
+        android:layout_alignTop="@id/view_humidity"
+        android:layout_marginLeft="40sp"
+        />
+
+    <TextView
         android:id="@+id/LuminosityTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -99,6 +129,27 @@
         android:layout_centerHorizontal="true"
         android:layout_marginTop="100sp"/>
 
+    <Switch
+        android:id="@+id/LuminosityAlarmSwitch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/LuminosityTitle"
+        android:layout_alignParentLeft="true"
+        android:layout_marginLeft="50sp"
+        android:layout_marginRight="60sp"
+        android:layout_toLeftOf="@id/view_luminosity"
+        android:textSize="10sp" />
+
+    <TextView
+        android:id="@+id/viewLuminosityThreshold"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/LuminosityAlarmSwitch"
+        android:layout_alignParentLeft="true"
+        android:layout_marginLeft="10sp"
+        android:text="min: ... | max: ...."
+        android:textSize="10sp" />
+
     <TextView
         android:id="@+id/view_luminosity"
         android:layout_width="wrap_content"
@@ -107,6 +158,18 @@
         android:layout_below="@id/LuminosityTitle"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="10sp"/>
+
+    <TextView
+        android:id="@+id/viewMinMaxLuminosity"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="min: ... | max: ..."
+        android:layout_below="@id/LuminosityTitle"
+        android:layout_toRightOf="@id/view_luminosity"
+        android:layout_alignTop="@id/view_luminosity"
+        android:layout_marginLeft="40sp"
+        />
+
 
     <Button
         android:id="@+id/set_alarm"
