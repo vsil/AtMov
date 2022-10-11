@@ -178,6 +178,7 @@
         android:text="Set Alarms Values"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
+        android:onClick="openAlarmActivity"
  />
 
     <Button
@@ -187,6 +188,7 @@
         android:text="Show Repository"
         android:layout_above="@id/set_alarm"
         android:layout_centerHorizontal="true"
+        android:onClick="openRepository"
         />
 
 

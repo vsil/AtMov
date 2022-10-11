@@ -140,20 +140,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
 
         setAlarmButton = findViewById(R.id.set_alarm);
-        setAlarmButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                openAlarmActivity();
-            }
-        });//da para fazer isto mais facilmente no xml file
-
         setRepositoryButton = findViewById(R.id.set_repository);
-        setRepositoryButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                openRepository();
-            }
-        });//da para fazer isto mais facilmente no xml file
+
 
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
 
@@ -195,12 +183,12 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         File file = new File(getApplicationContext().getFilesDir(), filename);
     }
 
-    private void openAlarmActivity() {
+    public void openAlarmActivity(View view) {
         Intent intent = new Intent(this, Alarms.class);
         startActivity(intent);
     }
 
-    private void openRepository() {
+    public void openRepository(View view) {
         String txt = "";
         for(int c=0;c<10;c=c+1){
             txt = txt + String.valueOf(TempStored[c]) + "\n" ;
