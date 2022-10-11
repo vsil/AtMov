@@ -232,6 +232,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                     if (event.values[0] < minTempThresh) {
                         Log.i(" Temp Threshold", "ON2");
 
+                        //sendNotificationAlert(CHANNEL_1_ID, "Minimum");
                         // create intent to open main activity after use click on alarm notification
                         Intent myIntent = new Intent(this, MainActivity.class);
                         PendingIntent pendingIntent = PendingIntent.getActivity(
@@ -357,5 +358,28 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         return newMinMax;
     }
 
+    /*
+    public void sendNotificationAlert(string Channel_ID, string AlarmType){
+        // create intent to open main activity after use click on alarm notification
+        Intent myIntent = new Intent(this, MainActivity.class);
+        PendingIntent pendingIntent = PendingIntent.getActivity(
+                this,
+                0,
+                myIntent,
+                PendingIntent.FLAG_IMMUTABLE);
+
+        // send notification
+        Notification notification = new NotificationCompat.Builder(this, Channel_ID)
+                .setSmallIcon(R.drawable.ic_message)
+                .setContentTitle("Temperature Alert")
+                .setContentText("Minimum temperature Alert")
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setCategory(NotificationCompat.CATEGORY_ALARM)
+                .setContentIntent(pendingIntent)
+                .setAutoCancel(true)
+                .build();
+        notificationManager.notify(1, notification);
+    };
+    */
 }
 
