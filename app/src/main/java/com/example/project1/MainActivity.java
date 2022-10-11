@@ -164,17 +164,13 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         startActivity(intent);
     }
 
-    // Question: Only shows values after they are changed by hand;
     @Override
     public void onSensorChanged(SensorEvent event) {
         switch(event.sensor.getType()){
 
             case Sensor.TYPE_AMBIENT_TEMPERATURE:
                 viewTemperature.setText(event.values[0] + " ºC");
-
                 minMaxTemp = checkMinMax(event.values[0], minMaxTemp, TempFirstEvent);
-                Log.d("min: " , "min: " + String.valueOf(minMaxTemp[0]));
-                Log.d("max: ", "max: " + String.valueOf(minMaxTemp[1]));
                 viewMinMaxTemp.setText("min: " + String.valueOf(minMaxTemp[0])+ " ºC | Max: " + String.valueOf(minMaxTemp[1])+ " ºC");
 
                 TempFirstEvent = false;          // can use a if True, para nao executar em todos os eventos
@@ -185,7 +181,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                     if (event.values[0] < minTempThresh) {
                         Log.i(" Temp Threshold", "ON2");
 
-                        // create intent to open main activity
+                        // create intent to open main activity after use click on alarm notification
                         Intent myIntent = new Intent(this, MainActivity.class);
                         PendingIntent pendingIntent = PendingIntent.getActivity(
                                 this,
@@ -264,7 +260,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         sh = getSharedPreferences("SharedPreferences", Context.MODE_PRIVATE);
         minTempThresh = sh.getFloat("min_temp_thresh", 0);
         maxTempThresh = sh.getFloat("max_temp_thresh", 0);
-
+        TempAlarmSwitch.setChecked(sh.getBoolean("alarm_switch_checked",false));
 
         Log.i(" SHARED PREFS READING: ", String.valueOf(minTempThresh));
         viewTempThresh.setText("min: " + minTempThresh + " ºC | Max: " + maxTempThresh + " ºC");
@@ -273,6 +269,13 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     @Override
     protected void onPause() {
+
+        // saves alarm state;
+        SharedPreferences pref = getApplicationContext().getSharedPreferences("SharedPreferences", 0); // 0 - for private mode
+        SharedPreferences.Editor editor = pref.edit();
+        editor.putBoolean("alarm_switch_checked", TempAlarmSwitch.isChecked()); // Storing float
+        editor.commit();
+
         super.onPause();
         sensorManager.unregisterListener(this);   // is it one unregister for all sensors?
     }
