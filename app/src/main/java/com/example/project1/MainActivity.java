@@ -22,6 +22,19 @@ import android.widget.Button;
 import android.widget.Switch;
 import android.widget.TextView;
 
+//jose
+import android.widget.Toast;
+import java.io.BufferedReader;
+import java.io.Console;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.time.temporal.Temporal;
+
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
 
     private TextView viewTemperature;
@@ -29,10 +42,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private TextView viewLuminosity;
 
     private Button setAlarmButton;
-
     private TextView viewMinMaxTemp;
     private TextView viewTempThresh;
     private Switch TempAlarmSwitch;
+    private Button setRepositoryButton;
+
 
     private TextView viewMinMaxHumid;
     private TextView viewHumidThresh;
@@ -69,6 +83,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     Float minTempThresh;
     Float maxTempThresh;
+
+    float[] TempStored = new float[10]; //declarar array de floats com tamanho fixo de 10
+
+    int TempIndex;
+
 
 
     @Override
@@ -122,7 +141,15 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             public void onClick(View view) {
                 openAlarmActivity();
             }
-        });
+        });//da para fazer isto mais facilmente no xml file
+
+        setRepositoryButton = findViewById(R.id.set_repository);
+        setRepositoryButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                openRepository();
+            }
+        });//da para fazer isto mais facilmente no xml file
 
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
 
@@ -132,6 +159,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             isTempSensorAvailable = true;
             TempFirstEvent = true;         //becomes false after first temp sensor reading
             //Log.i("ISTEMP?", "temp exists");
+            TempIndex = 0;
 
         } else {
             viewTemperature.setText("404: Temp Sensor not available");
@@ -164,6 +192,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         startActivity(intent);
     }
 
+    private void openRepository() {
+
+    }
+
+    // Question: Only shows values after they are changed by hand;
     @Override
     public void onSensorChanged(SensorEvent event) {
         switch(event.sensor.getType()){
@@ -225,6 +258,56 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                     }
                 }
 
+                //save up to 10 values
+                TempStored[TempIndex]=event.values[0];
+
+                TempIndex = TempIndex + 1; //next measurement must be in the next position
+                if (TempIndex == 10) //return to the begining
+                    TempIndex = 0; //round robin
+
+                String txt = "";
+                for(int c=0;c<9;c=c+1){
+                    txt = txt + String.valueOf(TempStored[c]) + "/" ;
+                }
+
+                //this needs to either go on the pause section or on the other activity
+                //create file to store values
+                String filename = "TempStored";
+                File file = new File(getApplicationContext().getFilesDir(), filename);
+
+                //store values
+                try (FileOutputStream fos = getApplicationContext().openFileOutput(filename, Context.MODE_PRIVATE)) {
+                    fos.write(txt.getBytes());
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                /*
+                //read stored values
+                FileInputStream fis = null; //prob just file would work here
+                try {
+                    fis = getApplicationContext().openFileInput(filename);
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
+
+                InputStreamReader inputStreamReader = new InputStreamReader(fis, StandardCharsets.UTF_8);
+                StringBuilder stringBuilder = new StringBuilder();
+                try (BufferedReader reader = new BufferedReader(inputStreamReader)) {
+                    String line = reader.readLine();
+                    while (line != null) {
+                        stringBuilder.append(line).append('\n');
+                        line = reader.readLine();
+                    }
+                    String contents = stringBuilder.toString();
+                    Toast toast = Toast.makeText(getApplicationContext(), contents, Toast.LENGTH_SHORT);
+                    toast.show();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                */
 
                 break;
 
