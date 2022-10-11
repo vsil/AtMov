@@ -8,6 +8,7 @@ import android.os.Build;
 public class Notifications extends Application {
     public static final String CHANNEL_1_ID = "channel1";
     public static final String CHANNEL_2_ID = "channel2";
+    public static final String CHANNEL_3_ID = "channel3";
     @Override
     public void onCreate(){
         super.onCreate();
@@ -25,14 +26,23 @@ public class Notifications extends Application {
 
             NotificationChannel channel2 = new NotificationChannel(
                     CHANNEL_2_ID,
+                    "Humidity Alert",
+                    NotificationManager.IMPORTANCE_HIGH
+            );
+            channel2.setDescription("This is Channel 2 - Humidity Alerts");
+
+            NotificationChannel channel3 = new NotificationChannel(
+                    CHANNEL_3_ID,
                     "Luminosity Alert",
                     NotificationManager.IMPORTANCE_HIGH
             );
-            channel2.setDescription("This is Channel 2 - Luminosity Alerts");
+            channel3.setDescription("This is Channel 3 - Luminosity Alerts");
 
             NotificationManager manager = getSystemService(NotificationManager.class);
+
             manager.createNotificationChannel(channel1);
             manager.createNotificationChannel(channel2);
+            manager.createNotificationChannel(channel3);
 
         }
 

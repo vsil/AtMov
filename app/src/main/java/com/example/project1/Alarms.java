@@ -25,6 +25,12 @@ public class Alarms extends AppCompatActivity {
     private Button maxHumidButton;
     private TextView maxHumidInput;
 
+    private Button minLuminosityButton;
+    private TextView minLuminosityInput;
+    private Button maxLuminosityButton;
+    private TextView maxLuminosityInput;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -75,6 +81,26 @@ public class Alarms extends AppCompatActivity {
             }
         });
 
+        minLuminosityInput = findViewById(R.id.LuminosityMinInput);
+        minLuminosityButton = findViewById(R.id.LuminosityMinButton);
+        minLuminosityButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                editor.putFloat("min_luminosity_thresh", Float.parseFloat(minLuminosityInput.getText().toString())); // Storing float
+                editor.commit();
+
+            }
+        });
+        maxLuminosityInput = findViewById(R.id.LuminosityMaxInput);
+        maxLuminosityButton = findViewById(R.id.LuminosityMaxButton);
+        maxLuminosityButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                editor.putFloat("max_luminosity_thresh", Float.parseFloat(maxLuminosityInput.getText().toString())); // Storing float
+                editor.commit();
+
+            }
+        });
 
     }
 

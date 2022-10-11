@@ -2,11 +2,11 @@ package com.example.project1;
 
 import static com.example.project1.Notifications.CHANNEL_1_ID;
 import static com.example.project1.Notifications.CHANNEL_2_ID;
+import static com.example.project1.Notifications.CHANNEL_3_ID;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
-
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -22,18 +22,11 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Switch;
 import android.widget.TextView;
-import android.widget.Toast;
-
-import java.io.BufferedReader;
-import java.io.Console;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
-import java.time.temporal.Temporal;
+
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
 
@@ -42,12 +35,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private TextView viewLuminosity;
 
     private Button setAlarmButton;
+    private Button setRepositoryButton;
 
     private TextView viewMinMaxTemp;
-
     private TextView viewTempThresh;
     private Switch TempAlarmSwitch;
-    private Button setRepositoryButton;
 
     private TextView viewMinMaxHumid;
     private TextView viewHumidThresh;
@@ -62,18 +54,16 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private Sensor luminositySensor;
 
     private boolean isTempSensorAvailable;
-    private boolean isHumidySensorAvailable;
+    private boolean isHumiditySensorAvailable;
     private boolean isLuminositySensorAvailable;
-
-    private SensorManager sensorManager;
 
     float[] minMaxTemp;   // [minTemp , maxTemp]
     float[] minMaxHumid;
-    float[] getMinMaxTemp;
+    float[] minMaxLuminosity;
 
     boolean TempFirstEvent;
     boolean HumidFirstEvent;
-    boolean LuminFirstEvent;
+    boolean LuminosityFirstEvent;
 
     Float minTempThresh;
     Float maxTempThresh;
@@ -82,6 +72,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     Float minLuminosityThresh;
     Float maxLuminosityThresh;
 
+    private SensorManager sensorManager;
     SharedPreferences sh;
     private NotificationManagerCompat notificationManager;
 
@@ -171,27 +162,28 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             temperatureSensor = sensorManager.getDefaultSensor(Sensor.TYPE_AMBIENT_TEMPERATURE);
             isTempSensorAvailable = true;
             TempFirstEvent = true;         //becomes false after first temp sensor reading
-            //Log.i("ISTEMP?", "temp exists");
             TempIndex = 0;
 
         } else {
             viewTemperature.setText("404: Temp Sensor not available");
             isTempSensorAvailable = false;
-            //Log.i("ISTEMP?", "temp doesnt exist");
+
         }
 
         if (sensorManager.getDefaultSensor(Sensor.TYPE_RELATIVE_HUMIDITY) != null) {
             humiditySensor = sensorManager.getDefaultSensor(Sensor.TYPE_RELATIVE_HUMIDITY);
-            isHumidySensorAvailable = true;
+            isHumiditySensorAvailable = true;
+            HumidFirstEvent = true;
 
         } else {
             viewHumidity.setText("404: Humidity Sensor not available");
-            isHumidySensorAvailable = false;
+            isHumiditySensorAvailable = false;
         }
 
         if (sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT) != null) {
             luminositySensor = sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
             isLuminositySensorAvailable = true;
+            LuminosityFirstEvent = true;
 
         } else {
             viewLuminosity.setText("404: Luminosity Sensor not available");
@@ -283,7 +275,22 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 break;
 
             case Sensor.TYPE_LIGHT:
-                viewLuminosity.setText(event.values[0] + " lx");
+                viewLuminosity.setText(event.values[0] + "%");
+                minMaxLuminosity = checkMinMax(event.values[0], minMaxLuminosity, LuminosityFirstEvent);
+                viewMinMaxLuminosity.setText("min: " + String.valueOf(minMaxLuminosity[0])+ " lx | Max: " + String.valueOf(minMaxLuminosity[1])+ " lx");
+
+                LuminosityFirstEvent = false;          // can use a if True, para nao executar em todos os eventos
+
+                if(LuminosityAlarmSwitch.isChecked()) {
+
+                    if (event.values[0] < minLuminosityThresh) {
+                        sendNotificationAlert(CHANNEL_3_ID, "Minimum", "Luminosity");
+
+                    }
+                    if (event.values[0] > maxLuminosityThresh) {
+                        sendNotificationAlert(CHANNEL_3_ID, "Maximum", "Luminosity");
+                    }
+                }
                 break;
         }
     }
@@ -302,20 +309,26 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         if (isLuminositySensorAvailable) {
             sensorManager.registerListener(this, luminositySensor, sensorManager.SENSOR_DELAY_NORMAL);
         }
-        if (isHumidySensorAvailable) {
+        if (isHumiditySensorAvailable) {
             sensorManager.registerListener(this, humiditySensor, sensorManager.SENSOR_DELAY_NORMAL);
         }
 
-
         sh = getSharedPreferences("SharedPreferences", Context.MODE_PRIVATE);
+
         minTempThresh = sh.getFloat("min_temp_thresh", 0);
         maxTempThresh = sh.getFloat("max_temp_thresh", 0);
+        viewTempThresh.setText("min: " + minTempThresh + " ºC| Max: " + maxTempThresh + " ºC");
         TempAlarmSwitch.setChecked(sh.getBoolean("temp_switch_checked",false));
 
         minHumidThresh = sh.getFloat("min_humid_thresh", 0);
         maxHumidThresh = sh.getFloat("max_humid_thresh", 0);
         viewHumidThresh.setText("min: " + minHumidThresh + "% | Max: " + maxHumidThresh + "%");
         HumidAlarmSwitch.setChecked(sh.getBoolean("humid_switch_checked",false));
+
+        minLuminosityThresh = sh.getFloat("min_luminosity_thresh", 0);
+        maxLuminosityThresh = sh.getFloat("max_luminosity_thresh", 0);
+        viewLuminosityThresh.setText("min: " + minLuminosityThresh + " lx | Max: " + maxLuminosityThresh + " lx");
+        LuminosityAlarmSwitch.setChecked(sh.getBoolean("luminosity_switch_checked",false));
     }
 
     @Override
