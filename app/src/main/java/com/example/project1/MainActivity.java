@@ -1,6 +1,7 @@
 package com.example.project1;
 
 import static com.example.project1.Notifications.CHANNEL_1_ID;
+import static com.example.project1.Notifications.CHANNEL_2_ID;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.NotificationCompat;
@@ -74,15 +75,17 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     boolean HumidFirstEvent;
     boolean LuminFirstEvent;
 
-    float[] TempThreshold;      // defined by user, who sets alarms
-    float[] LuminosityThreshold; // [min, max]
-    float[] HumidityThreshold;
+    Float minTempThresh;
+    Float maxTempThresh;
+    Float minHumidThresh;
+    Float maxHumidThresh;
+    Float minLuminosityThresh;
+    Float maxLuminosityThresh;
 
     SharedPreferences sh;
     private NotificationManagerCompat notificationManager;
 
-    Float minTempThresh;
-    Float maxTempThresh;
+
 
     float[] TempStored = new float[10]; //declarar array de floats com tamanho fixo de 10
 
@@ -109,7 +112,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             @Override
             public void onClick(View view) {
                 // clicking on switch opens alarm activities if neither of the alarm values are set
-                if(minTempThresh==null||maxTempThresh==null){
+                if(minTempThresh==0&maxTempThresh==0){
                     Intent intent = new Intent(view.getContext(), Alarms.class);
                     startActivity(intent);
                 }
@@ -119,19 +122,30 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         viewMinMaxHumid = findViewById(R.id.viewMinMaxHumid);
         viewHumidThresh = findViewById(R.id.viewHumidThreshold);
         HumidAlarmSwitch = findViewById(R.id.HumidityAlarmSwitch);
-//set onclick!!       TempAlarmSwitch.setOnClickListener(new View.OnClickListener() {};
+        HumidAlarmSwitch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // clicking on switch opens alarm activities if neither of the alarm values are set
+                if(minHumidThresh==0||maxHumidThresh==0){
+                    Intent intent = new Intent(view.getContext(), Alarms.class);
+                    startActivity(intent);
+                }
+            }
+        });
 
         viewMinMaxLuminosity = findViewById(R.id.viewMinMaxLuminosity);
         viewLuminosityThresh = findViewById(R.id.viewLuminosityThreshold);
         LuminosityAlarmSwitch = findViewById(R.id.LuminosityAlarmSwitch);
-/*
         LuminosityAlarmSwitch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                // clicking on switch opens alarm activities if neither of the alarm values are set
+                if(minLuminosityThresh==0||maxLuminosityThresh==0){
+                    Intent intent = new Intent(view.getContext(), Alarms.class);
+                    startActivity(intent);
+                }
             }
         });
-*/
 
 
         setAlarmButton = findViewById(R.id.set_alarm);
@@ -214,7 +228,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         startActivity(intent);
     }
 
-    // Question: Only shows values after they are changed by hand;
     @Override
     public void onSensorChanged(SensorEvent event) {
         switch(event.sensor.getType()){
@@ -231,49 +244,12 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                     // function check_threshold()
                     if (event.values[0] < minTempThresh) {
                         Log.i(" Temp Threshold", "ON2");
+                        sendNotificationAlert(CHANNEL_1_ID, "Minimum", "Temperature");
 
-                        //sendNotificationAlert(CHANNEL_1_ID, "Minimum");
-                        // create intent to open main activity after use click on alarm notification
-                        Intent myIntent = new Intent(this, MainActivity.class);
-                        PendingIntent pendingIntent = PendingIntent.getActivity(
-                                this,
-                                0,
-                                myIntent,
-                                PendingIntent.FLAG_IMMUTABLE);
-
-                        // send notification
-                        Notification notification = new NotificationCompat.Builder(this, CHANNEL_1_ID)
-                                .setSmallIcon(R.drawable.ic_message)
-                                .setContentTitle("Temperature Alert")
-                                .setContentText("Minimum temperature Alert")
-                                .setPriority(NotificationCompat.PRIORITY_HIGH)
-                                .setCategory(NotificationCompat.CATEGORY_ALARM)
-                                .setContentIntent(pendingIntent)
-                                .setAutoCancel(true)
-                                .build();
-                        notificationManager.notify(1, notification);
                     }
                     if (event.values[0] > maxTempThresh) {
                         Log.i(" Temp Threshold MAX", "ON2");
-
-                        //create intent to open main activity
-                        Intent myIntent = new Intent(this, MainActivity.class);
-                        PendingIntent pendingIntent = PendingIntent.getActivity(
-                                this,
-                                0,
-                                myIntent,
-                                PendingIntent.FLAG_IMMUTABLE);
-
-                        // send notification
-                        Notification notification = new NotificationCompat.Builder(this, CHANNEL_1_ID)
-                                .setSmallIcon(R.drawable.ic_message)
-                                .setContentTitle("Temperature Alert")
-                                .setContentText("Maximum temperature Alert")
-                                .setPriority(NotificationCompat.PRIORITY_HIGH)
-                                .setCategory(NotificationCompat.CATEGORY_ALARM)
-                                .setAutoCancel(true)
-                                .build();
-                        notificationManager.notify(1, notification);
+                        sendNotificationAlert(CHANNEL_1_ID, "Maximum", "Temperature");
                     }
                 }
 
@@ -288,6 +264,22 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
             case Sensor.TYPE_RELATIVE_HUMIDITY:
                 viewHumidity.setText(event.values[0] + "%");
+                minMaxHumid = checkMinMax(event.values[0], minMaxHumid, HumidFirstEvent);
+                viewMinMaxHumid.setText("min: " + String.valueOf(minMaxHumid[0])+ "% | Max: " + String.valueOf(minMaxHumid[1])+ "%");
+
+                HumidFirstEvent = false;          // can use a if True, para nao executar em todos os eventos
+
+                if(HumidAlarmSwitch.isChecked()) {
+
+                    // function check_threshold()
+                    if (event.values[0] < minHumidThresh) {
+                        sendNotificationAlert(CHANNEL_2_ID, "Minimum", "Humidity");
+
+                    }
+                    if (event.values[0] > maxHumidThresh) {
+                        sendNotificationAlert(CHANNEL_2_ID, "Maximum", "Humidity");
+                    }
+                }
                 break;
 
             case Sensor.TYPE_LIGHT:
@@ -318,11 +310,12 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         sh = getSharedPreferences("SharedPreferences", Context.MODE_PRIVATE);
         minTempThresh = sh.getFloat("min_temp_thresh", 0);
         maxTempThresh = sh.getFloat("max_temp_thresh", 0);
-        TempAlarmSwitch.setChecked(sh.getBoolean("alarm_switch_checked",false));
+        TempAlarmSwitch.setChecked(sh.getBoolean("temp_switch_checked",false));
 
-        Log.i(" SHARED PREFS READING: ", String.valueOf(minTempThresh));
-        viewTempThresh.setText("min: " + minTempThresh + " ºC | Max: " + maxTempThresh + " ºC");
-
+        minHumidThresh = sh.getFloat("min_humid_thresh", 0);
+        maxHumidThresh = sh.getFloat("max_humid_thresh", 0);
+        viewHumidThresh.setText("min: " + minHumidThresh + "% | Max: " + maxHumidThresh + "%");
+        HumidAlarmSwitch.setChecked(sh.getBoolean("humid_switch_checked",false));
     }
 
     @Override
@@ -331,11 +324,13 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         // saves alarm state;
         SharedPreferences pref = getApplicationContext().getSharedPreferences("SharedPreferences", 0); // 0 - for private mode
         SharedPreferences.Editor editor = pref.edit();
-        editor.putBoolean("alarm_switch_checked", TempAlarmSwitch.isChecked()); // Storing float
+        editor.putBoolean("temp_switch_checked", TempAlarmSwitch.isChecked());
+        editor.putBoolean("humid_switch_checked", HumidAlarmSwitch.isChecked());
+        editor.putBoolean("luminosity_switch_checked", LuminosityAlarmSwitch.isChecked());
         editor.commit();
 
         super.onPause();
-        sensorManager.unregisterListener(this);   // is it one unregister for all sensors?
+        sensorManager.unregisterListener(this);   // sensors unregister
     }
 
     // esta funcao consegue aceder ao minMax? se sim, nao tenho de passar como argumento
@@ -358,8 +353,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         return newMinMax;
     }
 
-    /*
-    public void sendNotificationAlert(string Channel_ID, string AlarmType){
+
+    public void sendNotificationAlert(String Channel_ID, String AlarmType, String Variable){
         // create intent to open main activity after use click on alarm notification
         Intent myIntent = new Intent(this, MainActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(
@@ -371,8 +366,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         // send notification
         Notification notification = new NotificationCompat.Builder(this, Channel_ID)
                 .setSmallIcon(R.drawable.ic_message)
-                .setContentTitle("Temperature Alert")
-                .setContentText("Minimum temperature Alert")
+                .setContentTitle(Variable + " Alert")
+                .setContentText(AlarmType + " " + Variable + " Alert")
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setCategory(NotificationCompat.CATEGORY_ALARM)
                 .setContentIntent(pendingIntent)
@@ -380,6 +375,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 .build();
         notificationManager.notify(1, notification);
     };
-    */
+
 }
 
