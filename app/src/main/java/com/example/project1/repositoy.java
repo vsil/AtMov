@@ -51,7 +51,7 @@ public class repositoy extends AppCompatActivity {
         String filename = "TempStored";
 
         //read stored values
-        FileInputStream fis = null; //prob just file would work here
+        FileInputStream fis = null;
 
         try {
             fis = getApplicationContext().openFileInput(filename);
@@ -74,6 +74,7 @@ public class repositoy extends AppCompatActivity {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
     }
 
 }

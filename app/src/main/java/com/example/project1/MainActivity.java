@@ -22,10 +22,19 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Switch;
 import android.widget.TextView;
+
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+
 
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
@@ -79,9 +88,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
 
     float[] TempStored = new float[10]; //declarar array de floats com tamanho fixo de 10
-
     int TempIndex;
-
+    Date[] TempStoredTime = new Date[10]; //declarar array de floats com tamanho fixo de 10
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -181,6 +189,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         //create file to store values
         String filename = "TempStored";
         File file = new File(getApplicationContext().getFilesDir(), filename);
+
+        //initialize times or program crashes
+        for(int c=0;c<10;c++)
+            TempStoredTime[c]= Calendar.getInstance().getTime();
     }
 
     public void openAlarmActivity(View view) {
@@ -189,24 +201,64 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     }
 
     public void openRepository(View view) {
+        //store sensor data in file
+        //build string to store
         String txt = "";
-        for(int c=0;c<10;c=c+1){
-            txt = txt + String.valueOf(TempStored[c]) + "\n" ;
-        }
-        String filename = "TempStored";
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm:ss");//this is used to transform time into a string for hours minutes and seconds
 
-        //store values
-        try (FileOutputStream fos = getApplicationContext().openFileOutput(filename, Context.MODE_PRIVATE)) {
-            fos.write(txt.getBytes());
+        int c=TempIndex+1;
+        txt = txt + simpleDateFormat.format(TempStoredTime[c]) + ":" + String.valueOf(TempStored[TempIndex]) + "\n" ;
+        while(c != TempIndex){
+            txt = txt + simpleDateFormat.format(TempStoredTime[c]) + ":" + String.valueOf(TempStored[c]) + "\n" ;
+            c=c+1;
+            if (c == 10) //return to the begining
+                c = 0; //round robin
+        }
+
+        SaveInFile("TempStored",txt);
+
+        //open new activity that shows repository
+        Intent intent = new Intent(this, repositoy.class);
+        startActivity(intent);
+    }
+
+    public void SaveInFile(String filename,String content){
+        //store values in [filename]
+        try (FileOutputStream fos = getApplicationContext().openFileOutput(filename, Context.MODE_PRIVATE)) { //everytime I do this the file gets deleted cleared and if I try append mode it crashes
+            fos.write(content.getBytes());
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-        Intent intent = new Intent(this, repositoy.class);
-        startActivity(intent);
     }
+
+    public String ReadFile(String filename){
+        //Returns a string with the contents of [filename]
+        FileInputStream fis = null;
+
+        try {
+            fis = getApplicationContext().openFileInput(filename);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        InputStreamReader inputStreamReader = new InputStreamReader(fis, StandardCharsets.UTF_8);
+        StringBuilder stringBuilder = new StringBuilder();
+
+        try (BufferedReader reader = new BufferedReader(inputStreamReader)) {
+            String line = reader.readLine();
+            while (line != null) {
+                stringBuilder.append(line).append('\n');
+                line = reader.readLine();
+            }
+        } catch (IOException e) {
+            // Error occurred when opening raw file for reading.
+        } finally {
+            String contents = stringBuilder.toString();
+            return contents;
+        }
+}
 
     @Override
     public void onSensorChanged(SensorEvent event) {
@@ -235,6 +287,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
                 //save up to 10 values
                 TempStored[TempIndex]=event.values[0];
+                TempStoredTime[TempIndex]= Calendar.getInstance().getTime();//get time stamp
 
                 TempIndex = TempIndex + 1; //next measurement must be in the next position
                 if (TempIndex == 10) //return to the begining
@@ -317,6 +370,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         maxLuminosityThresh = sh.getFloat("max_luminosity_thresh", 0);
         viewLuminosityThresh.setText("min: " + minLuminosityThresh + " lx | Max: " + maxLuminosityThresh + " lx");
         LuminosityAlarmSwitch.setChecked(sh.getBoolean("luminosity_switch_checked",false));
+
+        //add portion to put the repository back in the sored vector
     }
 
     @Override
