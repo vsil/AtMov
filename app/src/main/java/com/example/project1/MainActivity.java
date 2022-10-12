@@ -65,9 +65,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private boolean isHumiditySensorAvailable;
     private boolean isLuminositySensorAvailable;
 
-    float[] minMaxTemp;   // [minTemp , maxTemp]
-    float[] minMaxHumid;
-    float[] minMaxLuminosity;
+    float[] minMaxTemp = new float[2];   // [minTemp , maxTemp]
+    float[] minMaxHumid = new float[2];
+    float[] minMaxLuminosity = new float[2];
 
     boolean TempFirstEvent;
     boolean HumidFirstEvent;
@@ -357,20 +357,33 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         sh = getSharedPreferences("SharedPreferences", Context.MODE_PRIVATE);
 
+        // recover saved Temperature state: threshold, state of alarm (ON/OFF), and minimum and Maximum registered
         minTempThresh = sh.getFloat("min_temp_thresh", 0);
         maxTempThresh = sh.getFloat("max_temp_thresh", 0);
         viewTempThresh.setText("min: " + minTempThresh + " ºC| Max: " + maxTempThresh + " ºC");
         TempAlarmSwitch.setChecked(sh.getBoolean("temp_switch_checked",false));
+        minMaxTemp[0]=sh.getFloat("min_temp", 0);
+        minMaxTemp[1]=sh.getFloat("max_temp", 0);
+        viewMinMaxTemp.setText("min: " + String.valueOf(minMaxTemp[0])+ " ºC | Max: " + String.valueOf(minMaxTemp[1])+ " ºC");
 
+        // recover saved Humidity state
         minHumidThresh = sh.getFloat("min_humid_thresh", 0);
         maxHumidThresh = sh.getFloat("max_humid_thresh", 0);
         viewHumidThresh.setText("min: " + minHumidThresh + "% | Max: " + maxHumidThresh + "%");
         HumidAlarmSwitch.setChecked(sh.getBoolean("humid_switch_checked",false));
+        minMaxHumid[0]=sh.getFloat("min_humid", 0);
+        minMaxHumid[1]=sh.getFloat("max_humid", 0);
+        viewMinMaxHumid.setText("min: " + String.valueOf(minMaxHumid[0])+ "% | Max: " + String.valueOf(minMaxHumid[1])+ "%");
 
+
+        // recover saved Luminosity state
         minLuminosityThresh = sh.getFloat("min_luminosity_thresh", 0);
         maxLuminosityThresh = sh.getFloat("max_luminosity_thresh", 0);
         viewLuminosityThresh.setText("min: " + minLuminosityThresh + " lx | Max: " + maxLuminosityThresh + " lx");
         LuminosityAlarmSwitch.setChecked(sh.getBoolean("luminosity_switch_checked",false));
+        minMaxLuminosity[0]=sh.getFloat("min_luminosity", 0);
+        minMaxLuminosity[1]=sh.getFloat("max_luminosity", 0);
+        viewMinMaxLuminosity.setText("min: " + String.valueOf(minMaxLuminosity[0])+ " lx | Max: " + String.valueOf(minMaxLuminosity[1])+ " lx");
 
         //add portion to put the repository back in the sored vector
     }
@@ -384,10 +397,28 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         editor.putBoolean("temp_switch_checked", TempAlarmSwitch.isChecked());
         editor.putBoolean("humid_switch_checked", HumidAlarmSwitch.isChecked());
         editor.putBoolean("luminosity_switch_checked", LuminosityAlarmSwitch.isChecked());
+
+        saveMinMax("temp", minMaxTemp, editor);
+        saveMinMax("humid", minMaxHumid, editor);
+        saveMinMax("luminosity", minMaxLuminosity, editor);
+
         editor.commit();
 
         super.onPause();
         sensorManager.unregisterListener(this);   // sensors unregister
+    }
+
+    private void saveMinMax(String variable, float[] minMax, SharedPreferences.Editor editor) {
+        if(minMax[0] == 0.0f){
+            // if no sensor values were changed on the emulator, minMax is null so we save a default 0 for minMax
+            editor.putFloat("min_"+variable, 0);
+            editor.putFloat("max_"+variable, 0);
+        }
+        else{
+            editor.putFloat("min_"+variable, minMax[0]);
+            editor.putFloat("max_"+variable, minMax[1]);
+        }
+
     }
 
     // esta funcao consegue aceder ao minMax? se sim, nao tenho de passar como argumento
