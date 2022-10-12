@@ -158,7 +158,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             }
         });
 
-
         setAlarmButton = findViewById(R.id.set_alarm);
         setRepositoryButton = findViewById(R.id.set_repository);
         resetAlarmsButton = findViewById(R.id.reset_alarms);
@@ -181,6 +180,25 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 viewLuminosityThresh.setText("min: " + minLuminosityThresh + " lx | Max: " + maxLuminosityThresh + " lx");
             }
 
+            //ADD A SHOW METHOD
+        });
+        resetMinMaxButton = findViewById(R.id.reset_minmax);
+        resetMinMaxButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                minMaxTemp[0] = 0f;
+                minMaxTemp[1] = 0f;
+                minMaxHumid[0] = 0f;
+                minMaxHumid[1] = 0f;
+                minMaxLuminosity[0] = 0f;
+                minMaxLuminosity[1] = 0f;
+                //show update
+                viewMinMaxTemp.setText("min: " + String.valueOf(minMaxTemp[0])+ " ºC | Max: " + String.valueOf(minMaxTemp[1])+ " ºC");
+                viewMinMaxHumid.setText("min: " + String.valueOf(minMaxHumid[0])+ "% | Max: " + String.valueOf(minMaxHumid[1])+ "%");
+                viewMinMaxLuminosity.setText("min: " + String.valueOf(minMaxLuminosity[0])+ " lx | Max: " + String.valueOf(minMaxLuminosity[1])+ " lx");
+
+            }
+        });
 
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
 
@@ -218,11 +236,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
 
         //initialize times or program crashes
-        for(int c=0;c<10;c++){
-                TempStoredTime[c] = Calendar.getInstance().getTime();
-                HumStoredTime[c] = Calendar.getInstance().getTime();
-                LumStoredTime[c] = Calendar.getInstance().getTime();
-            }
+        for(int c=0;c<10;c++) {
+            TempStoredTime[c] = Calendar.getInstance().getTime();
+            HumStoredTime[c] = Calendar.getInstance().getTime();
+            LumStoredTime[c] = Calendar.getInstance().getTime();
         }
     }
 
@@ -297,6 +314,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 }
 
                 //save up to 10 values
+                TempStoredused = true;
                 TempStored[TempIndex]=event.values[0];
                 TempStoredTime[TempIndex]= Calendar.getInstance().getTime();//get time stamp
 
