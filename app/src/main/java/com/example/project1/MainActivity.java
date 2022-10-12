@@ -207,9 +207,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm:ss");//this is used to transform time into a string for hours minutes and seconds
 
         int c=TempIndex+1;
-        txt = txt + simpleDateFormat.format(TempStoredTime[c]) + ":" + String.valueOf(TempStored[TempIndex]) + "\n" ;
+        txt = txt + simpleDateFormat.format(TempStoredTime[c]) + ": " + String.valueOf(TempStored[TempIndex]) + "\n" ;
         while(c != TempIndex){
-            txt = txt + simpleDateFormat.format(TempStoredTime[c]) + ":" + String.valueOf(TempStored[c]) + "\n" ;
+            txt = txt + simpleDateFormat.format(TempStoredTime[c]) + ": " + String.valueOf(TempStored[c]) + "\n" ;
             c=c+1;
             if (c == 10) //return to the begining
                 c = 0; //round robin
