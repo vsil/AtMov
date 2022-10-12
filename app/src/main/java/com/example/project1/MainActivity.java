@@ -22,6 +22,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -44,6 +45,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     private Button setAlarmButton;
     private Button setRepositoryButton;
+    private Button resetAlarmsButton;
+    private Button resetMinMaxButton;
 
     private TextView viewMinMaxTemp;
     private TextView viewTempThresh;
@@ -148,7 +151,45 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         setAlarmButton = findViewById(R.id.set_alarm);
         setRepositoryButton = findViewById(R.id.set_repository);
+        resetAlarmsButton = findViewById(R.id.reset_alarms);
+        resetAlarmsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                TempAlarmSwitch.setChecked(false);
+                LuminosityAlarmSwitch.setChecked(false);
+                HumidAlarmSwitch.setChecked(false);
+                maxTempThresh = 0f;
+                minTempThresh = 0f;
+                maxHumidThresh = 0f;
+                minHumidThresh = 0f;
+                maxLuminosityThresh = 0f;
+                minLuminosityThresh = 0f;
+                // show update
+                // PROBLEM TO FIX :  THE THRESHOLDS ARE BEING OVERWRITTEN! NOT REALLY RESETED
+                viewTempThresh.setText("min: " + minTempThresh + " ºC| Max: " + maxTempThresh + " ºC");
+                viewHumidThresh.setText("min: " + minHumidThresh + "% | Max: " + maxHumidThresh + "%");
+                viewLuminosityThresh.setText("min: " + minLuminosityThresh + " lx | Max: " + maxLuminosityThresh + " lx");
+            }
 
+            //ADD A SHOW METHOD
+        });
+        resetMinMaxButton = findViewById(R.id.reset_minmax);
+        resetMinMaxButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                minMaxTemp[0] = 0f;
+                minMaxTemp[1] = 0f;
+                minMaxHumid[0] = 0f;
+                minMaxHumid[1] = 0f;
+                minMaxLuminosity[0] = 0f;
+                minMaxLuminosity[1] = 0f;
+                //show update
+                viewMinMaxTemp.setText("min: " + String.valueOf(minMaxTemp[0])+ " ºC | Max: " + String.valueOf(minMaxTemp[1])+ " ºC");
+                viewMinMaxHumid.setText("min: " + String.valueOf(minMaxHumid[0])+ "% | Max: " + String.valueOf(minMaxHumid[1])+ "%");
+                viewMinMaxLuminosity.setText("min: " + String.valueOf(minMaxLuminosity[0])+ " lx | Max: " + String.valueOf(minMaxLuminosity[1])+ " lx");
+
+            }
+        });
 
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
 
@@ -339,6 +380,42 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     @Override
     public void onAccuracyChanged(Sensor sensor, int i){
+        String accuracyMsg = "";
+        String sensorType;
+        switch(sensor.getType()){
+            case Sensor.TYPE_LIGHT:
+                sensorType = "Light";
+                break;
+
+            case Sensor.TYPE_AMBIENT_TEMPERATURE:
+                sensorType = "Temperature";
+                break;
+
+            case Sensor.TYPE_RELATIVE_HUMIDITY:
+                sensorType = "Humidity";
+                break;
+            default:
+                sensorType = "";
+        }
+
+        switch(i){
+            case SensorManager.SENSOR_STATUS_ACCURACY_HIGH:
+                accuracyMsg= sensorType + " Sensor has high accuracy";
+                break;
+            case SensorManager.SENSOR_STATUS_ACCURACY_MEDIUM:
+                accuracyMsg= sensorType + " Sensor has medium accuracy";
+                break;
+            case SensorManager.SENSOR_STATUS_ACCURACY_LOW:
+                accuracyMsg= sensorType + " Sensor has low accuracy";
+                break;
+            case SensorManager.SENSOR_STATUS_UNRELIABLE:
+                accuracyMsg=sensorType + " Sensor has unreliable accuracy";
+                break;
+            default:
+                break;
+        }
+        Toast accuracyToast = Toast.makeText(this.getApplicationContext(), accuracyMsg, Toast.LENGTH_SHORT);
+        accuracyToast.show();
     }
 
     @Override
