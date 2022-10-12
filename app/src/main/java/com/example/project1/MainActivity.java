@@ -236,10 +236,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
 
         //initialize times or program crashes
-        for(int c=0;c<10;c++) {
-            TempStoredTime[c] = Calendar.getInstance().getTime();
-            HumStoredTime[c] = Calendar.getInstance().getTime();
-            LumStoredTime[c] = Calendar.getInstance().getTime();
+        for(int c=0;c<10;c++){
+                TempStoredTime[c] = Calendar.getInstance().getTime();
+                HumStoredTime[c] = Calendar.getInstance().getTime();
+                LumStoredTime[c] = Calendar.getInstance().getTime();
         }
     }
 
