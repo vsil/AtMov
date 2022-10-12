@@ -191,5 +191,24 @@
         android:onClick="openRepository"
         />
 
+    <Button
+        android:id="@+id/reset_alarms"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Reset All Alarms"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@id/view_luminosity"
+        android:layout_marginTop="40sp"
+        />
+    <Button
+        android:id="@+id/reset_minmax"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Reset Min Max"
+        android:layout_alignParentRight="true"
+        android:layout_below="@id/view_luminosity"
+        android:layout_marginTop="40sp"
+        />
+
 
 </RelativeLayout>
