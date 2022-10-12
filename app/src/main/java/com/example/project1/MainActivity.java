@@ -85,10 +85,20 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private NotificationManagerCompat notificationManager;
 
 
-
+    boolean TempStoredused = false;
     float[] TempStored = new float[10]; //declarar array de floats com tamanho fixo de 10
     int TempIndex;
     Date[] TempStoredTime = new Date[10]; //declarar array de floats com tamanho fixo de 10
+
+    boolean HumStoredused = false;
+    float[] HumStored = new float[10]; //declarar array de floats com tamanho fixo de 10
+    int HumIndex;
+    Date[] HumStoredTime = new Date[10]; //declarar array de floats com tamanho fixo de 10
+
+    boolean LumStoredused = false;
+    float[] LumStored = new float[10]; //declarar array de floats com tamanho fixo de 10
+    int LumIndex;
+    Date[] LumStoredTime = new Date[10]; //declarar array de floats com tamanho fixo de 10
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -145,10 +155,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             }
         });
 
-
         setAlarmButton = findViewById(R.id.set_alarm);
         setRepositoryButton = findViewById(R.id.set_repository);
-
 
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
 
@@ -185,15 +193,12 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             isLuminositySensorAvailable = false;
         }
 
-        //create file to store values
-        String filename = "TempStored";
-        File file = new File(getApplicationContext().getFilesDir(), filename);
-
         //initialize times or program crashes
-        for(int c=0;c<10;c++)
-            TempStoredTime[c]= Calendar.getInstance().getTime();
-
-        //Reset
+        for(int c=0;c<10;c++) {
+            TempStoredTime[c] = Calendar.getInstance().getTime();
+            HumStoredTime[c] = Calendar.getInstance().getTime();
+            LumStoredTime[c] = Calendar.getInstance().getTime();
+        }
     }
 
     public void openAlarmActivity(View view) {
@@ -202,25 +207,32 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     }
 
     public void openRepository(View view) {
-        //store sensor data in file
-        //build string to store
-        String txt = "";
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm:ss");//this is used to transform time into a string for hours minutes and seconds
-
-        int c=TempIndex+1;
-        txt = txt + simpleDateFormat.format(TempStoredTime[c]) + ": " + String.valueOf(TempStored[TempIndex]) + "\n" ;
-        while(c != TempIndex){
-            txt = txt + simpleDateFormat.format(TempStoredTime[c]) + ": " + String.valueOf(TempStored[c]) + "\n" ;
-            c=c+1;
-            if (c == 10) //return to the begining
-                c = 0; //round robin
-        }
-
-        SaveInFile("TempStored",txt);
+        //store sensor data in files
+        if(TempStoredused)
+        SaveInFile("TempStored",constructString(TempIndex,TempStored,TempStoredTime));
+        if(HumStoredused)
+        SaveInFile("HumStored",constructString(HumIndex,HumStored,HumStoredTime));
+        if(LumStoredused)
+            SaveInFile("LumStored",constructString(LumIndex,LumStored,LumStoredTime));
 
         //open new activity that shows repository
         Intent intent = new Intent(this, repositoy.class);
         startActivity(intent);
+    }
+
+    public String constructString(int index,float[] stored,Date[] time){
+        String txt = "";
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm:ss");//this is used to transform time into a string for hours minutes and seconds
+
+        int c=index+1;
+        txt = txt + simpleDateFormat.format(time[c]) + ": " + String.valueOf(stored[index]) + "\n" ;
+        while(c != index){
+            txt = txt + simpleDateFormat.format(time[c]) + ": " + String.valueOf(stored[c]) + "\n" ;
+            c=c+1;
+            if (c == 10) //return to the begining
+                c = 0; //round robin
+        }
+        return txt;
     }
 
     public void SaveInFile(String filename,String content){
@@ -233,33 +245,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             e.printStackTrace();
         }
     }
-
-    public String ReadFile(String filename){
-        //Returns a string with the contents of [filename]
-        FileInputStream fis = null;
-
-        try {
-            fis = getApplicationContext().openFileInput(filename);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-
-        InputStreamReader inputStreamReader = new InputStreamReader(fis, StandardCharsets.UTF_8);
-        StringBuilder stringBuilder = new StringBuilder();
-
-        try (BufferedReader reader = new BufferedReader(inputStreamReader)) {
-            String line = reader.readLine();
-            while (line != null) {
-                stringBuilder.append(line).append('\n');
-                line = reader.readLine();
-            }
-        } catch (IOException e) {
-            // Error occurred when opening raw file for reading.
-        } finally {
-            String contents = stringBuilder.toString();
-            return contents;
-        }
-}
 
     @Override
     public void onSensorChanged(SensorEvent event) {
@@ -287,6 +272,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 }
 
                 //save up to 10 values
+                TempStoredused = true;
                 TempStored[TempIndex]=event.values[0];
                 TempStoredTime[TempIndex]= Calendar.getInstance().getTime();//get time stamp
 
@@ -314,6 +300,14 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                         sendNotificationAlert(CHANNEL_2_ID, "Maximum", "Humidity");
                     }
                 }
+                //save up to 10 values
+                HumStoredused = true;
+                HumStored[HumIndex]=event.values[0];
+                HumStoredTime[HumIndex]= Calendar.getInstance().getTime();//get time stamp
+
+                HumIndex = HumIndex + 1; //next measurement must be in the next position
+                if (HumIndex == 10) //return to the begining
+                    HumIndex = 0; //round robin
                 break;
 
             case Sensor.TYPE_LIGHT:
@@ -333,6 +327,16 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                         sendNotificationAlert(CHANNEL_3_ID, "Maximum", "Luminosity");
                     }
                 }
+
+                //save up to 10 values
+                LumStoredused = true;
+                LumStored[LumIndex]=event.values[0];
+                LumStoredTime[LumIndex]= Calendar.getInstance().getTime();//get time stamp
+
+                LumIndex = LumIndex + 1; //next measurement must be in the next position
+                if (LumIndex == 10) //return to the begining
+                    LumIndex = 0; //round robin
+
                 break;
         }
     }
@@ -385,7 +389,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         minMaxLuminosity[1]=sh.getFloat("max_luminosity", 0);
         viewMinMaxLuminosity.setText("min: " + String.valueOf(minMaxLuminosity[0])+ " lx | Max: " + String.valueOf(minMaxLuminosity[1])+ " lx");
 
-        //add portion to put the repository back in the sored vector
+        //recover stored values
+
     }
 
     @Override
