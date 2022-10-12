@@ -36,7 +36,6 @@ import java.util.Calendar;
 import java.util.Date;
 
 
-
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
 
     private TextView viewTemperature;
@@ -193,6 +192,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         //initialize times or program crashes
         for(int c=0;c<10;c++)
             TempStoredTime[c]= Calendar.getInstance().getTime();
+
+        //Reset
     }
 
     public void openAlarmActivity(View view) {
