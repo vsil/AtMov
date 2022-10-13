@@ -247,14 +247,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     }
 
     public void openRepository(View view) {
-        //store sensor data in files
-        if(TempStoredused)
-        SaveInFile("TempStored",constructString(TempIndex,TempStored,TempStoredTime));
-        if(HumStoredused)
-        SaveInFile("HumStored",constructString(HumIndex,HumStored,HumStoredTime));
-        if(LumStoredused)
-            SaveInFile("LumStored",constructString(LumIndex,LumStored,LumStoredTime));
-
         //open new activity that shows repository
         Intent intent = new Intent(this, Repository.class);
         startActivity(intent);
@@ -484,6 +476,13 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         saveMinMax("luminosity", minMaxLuminosity, editor);
 
         editor.commit();
+
+        if(TempStoredused)
+            SaveInFile("TempStored",constructString(TempIndex,TempStored,TempStoredTime));
+        if(HumStoredused)
+            SaveInFile("HumStored",constructString(HumIndex,HumStored,HumStoredTime));
+        if(LumStoredused)
+            SaveInFile("LumStored",constructString(LumIndex,LumStored,LumStoredTime));
 
         super.onPause();
         sensorManager.unregisterListener(this);   // sensors unregister
