@@ -24,14 +24,9 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -192,6 +187,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 minMaxHumid[1] = 0f;
                 minMaxLuminosity[0] = 0f;
                 minMaxLuminosity[1] = 0f;
+                TempFirstEvent = true;
+                HumidFirstEvent = true;
+                LuminosityFirstEvent = true;
                 //show update
                 viewMinMaxTemp.setText("min: " + String.valueOf(minMaxTemp[0])+ " ºC | Max: " + String.valueOf(minMaxTemp[1])+ " ºC");
                 viewMinMaxHumid.setText("min: " + String.valueOf(minMaxHumid[0])+ "% | Max: " + String.valueOf(minMaxHumid[1])+ "%");
@@ -258,7 +256,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             SaveInFile("LumStored",constructString(LumIndex,LumStored,LumStoredTime));
 
         //open new activity that shows repository
-        Intent intent = new Intent(this, repositoy.class);
+        Intent intent = new Intent(this, Repository.class);
         startActivity(intent);
     }
 
@@ -385,7 +383,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     @Override
     public void onAccuracyChanged(Sensor sensor, int i){
-        String accuracyMsg = "";
+        String msg = "";
         String sensorType;
         switch(sensor.getType()){
             case Sensor.TYPE_LIGHT:
@@ -405,21 +403,21 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         switch(i){
             case SensorManager.SENSOR_STATUS_ACCURACY_HIGH:
-                accuracyMsg= sensorType + " Sensor has high accuracy";
+                msg= sensorType + " Sensor has high accuracy";
                 break;
             case SensorManager.SENSOR_STATUS_ACCURACY_MEDIUM:
-                accuracyMsg= sensorType + " Sensor has medium accuracy";
+                msg= sensorType + " Sensor has medium accuracy";
                 break;
             case SensorManager.SENSOR_STATUS_ACCURACY_LOW:
-                accuracyMsg= sensorType + " Sensor has low accuracy";
+                msg= sensorType + " Sensor has low accuracy";
                 break;
             case SensorManager.SENSOR_STATUS_UNRELIABLE:
-                accuracyMsg=sensorType + " Sensor has unreliable accuracy";
+                msg=sensorType + " Sensor has unreliable accuracy";
                 break;
             default:
                 break;
         }
-        Toast accuracyToast = Toast.makeText(this.getApplicationContext(), accuracyMsg, Toast.LENGTH_SHORT);
+        Toast accuracyToast = Toast.makeText(this.getApplicationContext(), msg, Toast.LENGTH_SHORT);
         accuracyToast.show();
     }
 
