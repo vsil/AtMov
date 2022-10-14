@@ -245,11 +245,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         File file = new File(getApplicationContext().getFilesDir(),"TempStored");
         if(!(file.exists()))
             SaveInFile("TempStored",constructString(TempIndex,TempStored,TempStoredTime));
-
-        File file = new File(getApplicationContext().getFilesDir(),"HumStored");
+        file = new File(getApplicationContext().getFilesDir(),"HumStored");
         if(!(file.exists()))
             SaveInFile("HumStored",constructString(TempIndex,TempStored,TempStoredTime));
-        File file = new File(getApplicationContext().getFilesDir(),"LumStored");
+        file = new File(getApplicationContext().getFilesDir(),"LumStored");
         if(!(file.exists()))
             SaveInFile("LumStored",constructString(TempIndex,TempStored,TempStoredTime));
 
