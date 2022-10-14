@@ -24,6 +24,7 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -239,6 +240,19 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 HumStoredTime[c] = Calendar.getInstance().getTime();
                 LumStoredTime[c] = Calendar.getInstance().getTime();
         }
+
+        //if no repository doesnt already exist create it
+        File file = new File(getApplicationContext().getFilesDir(),"TempStored");
+        if(!(file.exists()))
+            SaveInFile("TempStored",constructString(TempIndex,TempStored,TempStoredTime));
+
+        File file = new File(getApplicationContext().getFilesDir(),"HumStored");
+        if(!(file.exists()))
+            SaveInFile("HumStored",constructString(TempIndex,TempStored,TempStoredTime));
+        File file = new File(getApplicationContext().getFilesDir(),"LumStored");
+        if(!(file.exists()))
+            SaveInFile("LumStored",constructString(TempIndex,TempStored,TempStoredTime));
+
     }
 
     public void openAlarmActivity(View view) {
