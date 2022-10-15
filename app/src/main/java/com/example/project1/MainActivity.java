@@ -209,9 +209,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             TempIndex = 0;
 
         } else {
-            viewTemperature.setText("404: Temp Sensor not available");
             isTempSensorAvailable = false;
-
+            MainActivity.this.finish();
+            System.exit(0);
         }
 
         if (sensorManager.getDefaultSensor(Sensor.TYPE_RELATIVE_HUMIDITY) != null) {
@@ -220,8 +220,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             HumidFirstEvent = true;
 
         } else {
-            viewHumidity.setText("404: Humidity Sensor not available");
             isHumiditySensorAvailable = false;
+            MainActivity.this.finish();
+            System.exit(0);
         }
 
         if (sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT) != null) {
@@ -230,8 +231,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             LuminosityFirstEvent = true;
 
         } else {
-            viewLuminosity.setText("404: Luminosity Sensor not available");
             isLuminositySensorAvailable = false;
+            MainActivity.this.finish();
+            System.exit(0);
         }
 
         //initialize times or program crashes
