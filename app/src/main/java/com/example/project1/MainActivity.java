@@ -170,13 +170,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 maxLuminosityThresh = 0f;
                 minLuminosityThresh = 0f;
                 // show update
-                // PROBLEM TO FIX :  THE THRESHOLDS ARE BEING OVERWRITTEN! NOT REALLY RESETED
                 viewTempThresh.setText("min: " + minTempThresh + " ºC| Max: " + maxTempThresh + " ºC");
                 viewHumidThresh.setText("min: " + minHumidThresh + "% | Max: " + maxHumidThresh + "%");
                 viewLuminosityThresh.setText("min: " + minLuminosityThresh + " lx | Max: " + maxLuminosityThresh + " lx");
             }
-
-            //ADD A SHOW METHOD
         });
         resetMinMaxButton = findViewById(R.id.reset_minmax);
         resetMinMaxButton.setOnClickListener(new View.OnClickListener() {
@@ -201,7 +198,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
 
-        // put all this in a function ; get_sensors() or something
         if (sensorManager.getDefaultSensor(Sensor.TYPE_AMBIENT_TEMPERATURE) != null) {
             temperatureSensor = sensorManager.getDefaultSensor(Sensor.TYPE_AMBIENT_TEMPERATURE);
             isTempSensorAvailable = true;
@@ -210,6 +206,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         } else {
             isTempSensorAvailable = false;
+            Log.e("MainActivity", "Temperature Sensor not available. Closing application.");
             MainActivity.this.finish();
             System.exit(0);
         }
@@ -221,6 +218,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         } else {
             isHumiditySensorAvailable = false;
+            Log.e("MainActivity", "Humidity Sensor not available. Closing application.");
             MainActivity.this.finish();
             System.exit(0);
         }
@@ -232,6 +230,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         } else {
             isLuminositySensorAvailable = false;
+            Log.e("MainActivity", "Luminosity Sensor not available. Closing application.");
             MainActivity.this.finish();
             System.exit(0);
         }
@@ -243,7 +242,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 LumStoredTime[c] = Calendar.getInstance().getTime();
         }
 
-        //if no repository doesnt already exist create it
+        //if no repository doesnt already exist, create it
         File file = new File(getApplicationContext().getFilesDir(),"TempStored");
         if(!(file.exists()))
             SaveInFile("TempStored",constructString(TempIndex,TempStored,TempStoredTime));
@@ -257,12 +256,13 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     }
 
     public void openAlarmActivity(View view) {
+        //opens new activity that allows user to set alarm trhresholds
         Intent intent = new Intent(this, Alarms.class);
         startActivity(intent);
     }
 
     public void openRepository(View view) {
-        //open new activity that shows repository
+        //opens new activity that shows repository
         Intent intent = new Intent(this, Repository.class);
         startActivity(intent);
     }
@@ -302,18 +302,14 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 minMaxTemp = checkMinMax(event.values[0], minMaxTemp, TempFirstEvent);
                 viewMinMaxTemp.setText("min: " + String.valueOf(minMaxTemp[0])+ " ºC | Max: " + String.valueOf(minMaxTemp[1])+ " ºC");
 
-                TempFirstEvent = false;          // can use a if True, para nao executar em todos os eventos
+                TempFirstEvent = false;
 
                 if(TempAlarmSwitch.isChecked()) {
-
-                    // function check_threshold()
+                    //checks if threshold has been reached
                     if (event.values[0] < minTempThresh) {
-                        Log.i(" Temp Threshold", "ON2");
                         sendNotificationAlert(CHANNEL_1_ID, "Minimum", "Temperature");
-
                     }
                     if (event.values[0] > maxTempThresh) {
-                        Log.i(" Temp Threshold MAX", "ON2");
                         sendNotificationAlert(CHANNEL_1_ID, "Maximum", "Temperature");
                     }
                 }
@@ -334,14 +330,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 minMaxHumid = checkMinMax(event.values[0], minMaxHumid, HumidFirstEvent);
                 viewMinMaxHumid.setText("min: " + String.valueOf(minMaxHumid[0])+ "% | Max: " + String.valueOf(minMaxHumid[1])+ "%");
 
-                HumidFirstEvent = false;          // can use a if True, para nao executar em todos os eventos
+                HumidFirstEvent = false;
 
                 if(HumidAlarmSwitch.isChecked()) {
-
-                    // function check_threshold()
                     if (event.values[0] < minHumidThresh) {
                         sendNotificationAlert(CHANNEL_2_ID, "Minimum", "Humidity");
-
                     }
                     if (event.values[0] > maxHumidThresh) {
                         sendNotificationAlert(CHANNEL_2_ID, "Maximum", "Humidity");
@@ -362,7 +355,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 minMaxLuminosity = checkMinMax(event.values[0], minMaxLuminosity, LuminosityFirstEvent);
                 viewMinMaxLuminosity.setText("min: " + String.valueOf(minMaxLuminosity[0])+ " lx | Max: " + String.valueOf(minMaxLuminosity[1])+ " lx");
 
-                LuminosityFirstEvent = false;          // can use a if True, para nao executar em todos os eventos
+                LuminosityFirstEvent = false;
 
                 if(LuminosityAlarmSwitch.isChecked()) {
 
@@ -390,6 +383,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     @Override
     public void onAccuracyChanged(Sensor sensor, int i){
+        // displays toast with sensor accuracy at startup
         String msg = "";
         String sensorType;
         switch(sensor.getType()){
@@ -462,7 +456,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         minMaxHumid[1]=sh.getFloat("max_humid", 0);
         viewMinMaxHumid.setText("min: " + String.valueOf(minMaxHumid[0])+ "% | Max: " + String.valueOf(minMaxHumid[1])+ "%");
 
-
         // recover saved Luminosity state
         minLuminosityThresh = sh.getFloat("min_luminosity_thresh", 0);
         maxLuminosityThresh = sh.getFloat("max_luminosity_thresh", 0);
@@ -471,8 +464,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         minMaxLuminosity[0]=sh.getFloat("min_luminosity", 0);
         minMaxLuminosity[1]=sh.getFloat("max_luminosity", 0);
         viewMinMaxLuminosity.setText("min: " + String.valueOf(minMaxLuminosity[0])+ " lx | Max: " + String.valueOf(minMaxLuminosity[1])+ " lx");
-
-        //recover stored values
 
     }
 
