@@ -272,6 +272,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm:ss");//this is used to transform time into a string for hours minutes and seconds
 
         int c=index+1;
+        if (c == 10) //return to the begining
+            c = 0; //round rob
         txt = txt + simpleDateFormat.format(time[c]) + ": " + String.valueOf(stored[index]) + "\n" ;
         while(c != index){
             txt = txt + simpleDateFormat.format(time[c]) + ": " + String.valueOf(stored[c]) + "\n" ;
